@@ -24,36 +24,10 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
 {
   G4Track* track = step->GetTrack();
   const G4VProcess* creatorProcess = track->GetCreatorProcess();
-  G4cout << "creatorProcess: ";
-  if (creatorProcess) {
-    G4cout << creatorProcess->GetProcessName();
-  } else {
-    G4cout << "NULL";
-  }
-  G4cout << G4endl;
-
-  G4StepPoint* preStepPoint = step->GetPreStepPoint();
-  const G4VProcess* preProcessDefinedStep = preStepPoint->GetProcessDefinedStep();
-  G4cout << "preProcessDefinedStep: ";
-  if (preProcessDefinedStep) {
-    G4cout << preProcessDefinedStep->GetProcessName();
-  } else {
-    G4cout << "NULL";
-  }
-  G4cout << G4endl;
+  if (creatorProcess == nullptr) return true;
 
   G4StepPoint* postStepPoint = step->GetPostStepPoint();
   const G4VProcess* postProcessDefinedStep = postStepPoint->GetProcessDefinedStep();
-  G4cout << "postProcessDefinedStep: ";
-  if (postProcessDefinedStep) {
-    G4cout << postProcessDefinedStep->GetProcessName();
-  } else {
-    G4cout << "NULL";
-  }
-  G4cout << G4endl;
-
-  if (creatorProcess == nullptr) return true;
-//  if (preProcessDefinedStep == nullptr) return true;
   if (postProcessDefinedStep == nullptr) return true;
 
   if (creatorProcess->GetProcessName() == "annihil" &&
