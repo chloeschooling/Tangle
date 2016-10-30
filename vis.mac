@@ -1,0 +1,12 @@
+/control/verbose 2
+
+/run/numberOfThreads 8
+
+/run/initialize
+
+/vis/open OGL
+/vis/drawVolume
+
+/control/execute pretty.mac
+
+/control/execute gps.mac
