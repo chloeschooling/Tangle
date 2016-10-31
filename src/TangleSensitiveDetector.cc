@@ -12,8 +12,9 @@
 #include "G4PhysicalConstants.hh"
 
 TangleSensitiveDetector::TangleSensitiveDetector
-(const G4String& name)
+(const G4String& name, TangleRunAction* runAction)
 : G4VSensitiveDetector(name)
+, fpRunAction(runAction)
 {}
 
 void TangleSensitiveDetector::Initialize(G4HCofThisEvent*)
@@ -26,7 +27,25 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
   if (f1stComptonScatteringAnnihilationPhotonFound &&
       f2ndComptonScatteringAnnihilationPhotonFound) {
-    G4double phi = 0.;
+    const G4ThreeVector annihilation_z_axis = (f1stComptonElectronPosition - f1stPhotonOriginPosition).unit();
+    G4ThreeVector difference = annihilation_z_axis - (f2ndPhotonOriginPosition - f2ndComptonElectronPosition).unit();
+    if (difference.mag() > 0.0000001) {
+      G4cerr << "Axis mis-alignment" << G4endl;
+//      abort();
+    }
+    const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(G4ThreeVector(1.,0.,0.))).unit();
+    const G4ThreeVector annihilation_x_axis = annihilation_y_axis.cross(annihilation_z_axis);
+    const G4ThreeVector v1 = f1stComptonElectronMomentum.cross(annihilation_z_axis);
+    const G4double& v1_mag = v1.mag();
+    G4double phi1 = std::acos(v1*annihilation_y_axis/v1_mag);
+//    G4cout << "phi1: " << phi1 << G4endl;
+    const G4ThreeVector v2 = f2ndComptonElectronMomentum.cross(annihilation_z_axis);
+    const G4double& v2_mag = v2.mag();
+    G4double phi2 = std::acos(v2*annihilation_y_axis/v2_mag);
+//    G4cout << "phi2: " << phi2 << G4endl;
+    fpRunAction->RecordDeltaPhi(TangleRunAction::Data(phi2,phi1));
+  } else {
+    G4cout << "No double Comptons" << G4endl;
   }
 }
 
@@ -50,13 +69,13 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
       if (track->GetCurrentStepNumber() == 1) {
         f1stComptonScatteringAnnihilationPhotonFound = true;
         // This is the first step of the first photon
-        G4cout
-        << "1st photon found: trackID: " << track->GetTrackID()
-        << ", preStepPointPosition: " << preStepPoint->GetPosition()
-        << ", postStepPointPosition: " << postStepPoint->GetPosition()
-        << ", position: " << track->GetPosition()
-        << ", momentum: " << track->GetMomentum()
-        << G4endl;
+//        G4cout
+//        << "1st photon found: trackID: " << track->GetTrackID()
+//        << ", preStepPointPosition: " << preStepPoint->GetPosition()
+//        << ", postStepPointPosition: " << postStepPoint->GetPosition()
+//        << ", position: " << track->GetPosition()
+//        << ", momentum: " << track->GetMomentum()
+//        << G4endl;
         // We want the electron from the Compton process.
         G4EventManager* eventManager = G4EventManager::GetEventManager();
         G4TrackingManager* trackingManager = eventManager->GetTrackingManager();
@@ -64,33 +83,33 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
         const G4TrackVector* secondaries = steppingManager->GetSecondary();
         if (secondaries->size() != 1) {
           G4cerr << "oops" << G4endl;
-          abort();
+//          abort();
         }
         f1stPhotonOriginPosition = preStepPoint->GetPosition();
         f1stComptonElectronPosition = (*secondaries)[0]->GetPosition();
         f1stComptonElectronMomentum = (*secondaries)[0]->GetMomentum();
         if (f1stComptonElectronPosition != postStepPoint->GetPosition()) {
           G4cout << "Positions don't match" << G4endl;
-          abort();
+//          abort();
         }
-        G4cout
-        << "Electron position: " << f1stComptonElectronPosition
-        << ", momentum: " << f1stComptonElectronMomentum
-        << G4endl;
+//        G4cout
+//        << "Electron position: " << f1stComptonElectronPosition
+//        << ", momentum: " << f1stComptonElectronMomentum
+//        << G4endl;
       }
     } else {
       // First photon found so look for second
       if (!f2ndComptonScatteringAnnihilationPhotonFound) {
         if (track->GetCurrentStepNumber() == 1) {
-          f1stComptonScatteringAnnihilationPhotonFound = true;
+          f2ndComptonScatteringAnnihilationPhotonFound = true;
           // This is the first step of the second photon
-          G4cout
-          << "2nd photon found: trackID: " << track->GetTrackID()
-          << ", preStepPointPosition: " << preStepPoint->GetPosition()
-          << ", postStepPointPosition: " << postStepPoint->GetPosition()
-          << ", position: " << track->GetPosition()
-          << ", momentum: " << track->GetMomentum()
-          << G4endl;
+//          G4cout
+//          << "2nd photon found: trackID: " << track->GetTrackID()
+//          << ", preStepPointPosition: " << preStepPoint->GetPosition()
+//          << ", postStepPointPosition: " << postStepPoint->GetPosition()
+//          << ", position: " << track->GetPosition()
+//          << ", momentum: " << track->GetMomentum()
+//          << G4endl;
           // We want the electron from the Compton process.
           G4EventManager* eventManager = G4EventManager::GetEventManager();
           G4TrackingManager* trackingManager = eventManager->GetTrackingManager();
@@ -98,19 +117,19 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
           const G4TrackVector* secondaries = steppingManager->GetSecondary();
           if (secondaries->size() != 1) {
             G4cerr << "oops" << G4endl;
-            abort();
+//            abort();
           }
           f2ndPhotonOriginPosition = preStepPoint->GetPosition();
           f2ndComptonElectronPosition = (*secondaries)[0]->GetPosition();
           f2ndComptonElectronMomentum = (*secondaries)[0]->GetMomentum();
           if (f2ndComptonElectronPosition != postStepPoint->GetPosition()) {
             G4cout << "Positions don't match" << G4endl;
-            abort();
+//            abort();
           }
-          G4cout
-          << "Electron position: " << f2ndComptonElectronPosition
-          << ", momentum: " << f2ndComptonElectronMomentum
-          << G4endl;
+//          G4cout
+//          << "Electron position: " << f2ndComptonElectronPosition
+//          << ", momentum: " << f2ndComptonElectronMomentum
+//          << G4endl;
         }
       } else {
         if (track->GetCurrentStepNumber() == 1) {
