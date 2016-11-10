@@ -25,8 +25,8 @@ void TangleSensitiveDetector::Initialize(G4HCofThisEvent*)
 
 void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
-  if (fComptonScatteringAnnihilationPhotonFound1 /*&&
-      fComptonScatteringAnnihilationPhotonFound2*/) {
+  if (fComptonScatteringAnnihilationPhotonFound1 &&
+      fComptonScatteringAnnihilationPhotonFound2) {
     const G4ThreeVector annihilation_z_axis = (fComptonScatteredPhotonPosition1 - fPhotonOriginPosition1).unit();
     G4ThreeVector difference = annihilation_z_axis - (fComptonScatteredPhotonPosition2 - fPhotonOriginPosition2).unit();
     if (difference.mag() > 0.0000001) {
@@ -70,7 +70,7 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
 {
   G4Track* track = step->GetTrack();
   const G4VProcess* creatorProcess = track->GetCreatorProcess();
-//  if (creatorProcess == nullptr) return true;
+  if (creatorProcess == nullptr) return true;
 
   G4StepPoint* preStepPoint = step->GetPreStepPoint();
 
@@ -78,7 +78,7 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
   const G4VProcess* postProcessDefinedStep = postStepPoint->GetProcessDefinedStep();
   if (postProcessDefinedStep == nullptr) return true;
 
-  if (/*creatorProcess->GetProcessName() == "annihil" &&*/
+  if (creatorProcess->GetProcessName() == "annihil" &&
       postProcessDefinedStep->GetProcessName() == "compt") {
     // This is an annihilation photon that Compton scatters.
     if (!fComptonScatteringAnnihilationPhotonFound1) {
