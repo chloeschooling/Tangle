@@ -28,7 +28,7 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
   if (fComptonScatteringAnnihilationPhotonFound1 &&
       fComptonScatteringAnnihilationPhotonFound2) {
     const G4ThreeVector annihilation_z_axis = (fComptonScatteredPhotonPosition1 - fPhotonOriginPosition1).unit();
-    G4ThreeVector difference = annihilation_z_axis - (fComptonScatteredPhotonPosition2 - fPhotonOriginPosition2).unit();
+    G4ThreeVector difference = annihilation_z_axis - (fPhotonOriginPosition2 - fComptonScatteredPhotonPosition2).unit();
     if (difference.mag() > 0.0000001) {
       G4cerr << "Axis mis-alignment" << G4endl;
 //      abort();
