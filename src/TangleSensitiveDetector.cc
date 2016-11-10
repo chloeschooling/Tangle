@@ -25,29 +25,31 @@ void TangleSensitiveDetector::Initialize(G4HCofThisEvent*)
 
 void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
-  if (fComptonScatteringAnnihilationPhotonFound1 &&
-      fComptonScatteringAnnihilationPhotonFound2) {
+  if (fComptonScatteringAnnihilationPhotonFound1 /*&&
+      fComptonScatteringAnnihilationPhotonFound2*/) {
     const G4ThreeVector annihilation_z_axis = (fComptonElectronPosition1 - fPhotonOriginPosition1).unit();
     G4ThreeVector difference = annihilation_z_axis - (fPhotonOriginPosition2 - fComptonElectronPosition2).unit();
-    if (difference.mag() > 0.0000001) {
-      G4cerr << "Axis mis-alignment" << G4endl;
-//      abort();
+//    if (difference.mag() > 0.0000001) {
+//      G4cerr << "Axis mis-alignment" << G4endl;
+////      abort();
+//    }
+    G4double polarisationScalarProduct = fPhotonPolarisation1 * fPhotonPolarisation2;
+    G4cout << "polarisationScalarProduct: " << polarisationScalarProduct << G4endl;
+    if (std::abs(polarisationScalarProduct) > 0.00001) {
+      G4cout << "Polarisations not at right angles; scalar product: " << polarisationScalarProduct << G4endl;
     }
-//    G4double polarisationScalarProduct = fPhotonPolarisation1 * fPhotonPolarisation2;
-//    G4cout << "polarisationScalarProduct: " << polarisationScalarProduct << G4endl;
-//    if (std::abs(polarisationScalarProduct) > 0.00001) {
-//      G4cout << "Polarisations not at right angles; scalar product: " << polarisationScalarProduct << G4endl;
-//    }
-//    G4ThreeVector polarisationVectorProduct = fPhotonPolarisation1.cross(fPhotonPolarisation2);
-//    G4cout << "polarisationVectorProduct: " << polarisationVectorProduct << G4endl;
-//    G4cout << "annihilation_z_axis: " << annihilation_z_axis << G4endl;
-//    if (std::abs((polarisationVectorProduct.cross(annihilation_z_axis).mag())) > 0.00001) {
-//      G4cout << "Polarisations not parallel to direction;"
-//      << "\n  vector product: " << polarisationVectorProduct
-//      << "\n  direction: " << annihilation_z_axis
-//      << G4endl;
-//    }
-    const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(G4ThreeVector(1.,0.,0.))).unit();
+    G4ThreeVector polarisationVectorProduct = fPhotonPolarisation1.cross(fPhotonPolarisation2);
+    G4cout << "polarisationVectorProduct: " << polarisationVectorProduct << G4endl;
+    G4cout << "annihilation_z_axis: " << annihilation_z_axis << G4endl;
+    if (std::abs((polarisationVectorProduct.cross(annihilation_z_axis).mag())) > 0.00001) {
+      G4cout << "Polarisations not parallel to direction;"
+      << "\n  vector product: " << polarisationVectorProduct
+      << "\n  direction: " << annihilation_z_axis
+      << G4endl;
+    }
+//    const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(G4ThreeVector(1.,0.,0.))).unit();
+    // Make y' perp. to polarisation of first photon
+    const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(fPhotonPolarisation1)).unit();
     const G4ThreeVector annihilation_x_axis = annihilation_y_axis.cross(annihilation_z_axis);
     const G4ThreeVector v1 = fComptonElectronMomentum1.cross(annihilation_z_axis);
     const G4double& v1_mag = v1.mag();
@@ -68,7 +70,7 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
 {
   G4Track* track = step->GetTrack();
   const G4VProcess* creatorProcess = track->GetCreatorProcess();
-  if (creatorProcess == nullptr) return true;
+//  if (creatorProcess == nullptr) return true;
 
   G4StepPoint* preStepPoint = step->GetPreStepPoint();
 
@@ -76,7 +78,7 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
   const G4VProcess* postProcessDefinedStep = postStepPoint->GetProcessDefinedStep();
   if (postProcessDefinedStep == nullptr) return true;
 
-  if (creatorProcess->GetProcessName() == "annihil" &&
+  if (/*creatorProcess->GetProcessName() == "annihil" &&*/
       postProcessDefinedStep->GetProcessName() == "compt") {
     // This is an annihilation photon that Compton scatters.
     if (!fComptonScatteringAnnihilationPhotonFound1) {
