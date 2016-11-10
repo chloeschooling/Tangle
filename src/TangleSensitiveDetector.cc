@@ -27,12 +27,12 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
   if (fComptonScatteringAnnihilationPhotonFound1 /*&&
       fComptonScatteringAnnihilationPhotonFound2*/) {
-    const G4ThreeVector annihilation_z_axis = (fComptonElectronPosition1 - fPhotonOriginPosition1).unit();
-    G4ThreeVector difference = annihilation_z_axis - (fPhotonOriginPosition2 - fComptonElectronPosition2).unit();
-//    if (difference.mag() > 0.0000001) {
-//      G4cerr << "Axis mis-alignment" << G4endl;
-////      abort();
-//    }
+    const G4ThreeVector annihilation_z_axis = (fComptonScatteredPhotonPosition1 - fPhotonOriginPosition1).unit();
+    G4ThreeVector difference = annihilation_z_axis - (fComptonScatteredPhotonPosition2 - fPhotonOriginPosition2).unit();
+    if (difference.mag() > 0.0000001) {
+      G4cerr << "Axis mis-alignment" << G4endl;
+//      abort();
+    }
     G4double polarisationScalarProduct = fPhotonPolarisation1 * fPhotonPolarisation2;
     G4cout << "polarisationScalarProduct: " << polarisationScalarProduct << G4endl;
     if (std::abs(polarisationScalarProduct) > 0.00001) {
@@ -51,14 +51,14 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     // Make y' perp. to polarisation of first photon
     const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(fPhotonPolarisation1)).unit();
     const G4ThreeVector annihilation_x_axis = annihilation_y_axis.cross(annihilation_z_axis);
-    const G4ThreeVector v1 = fComptonElectronMomentum1.cross(annihilation_z_axis);
+    const G4ThreeVector v1 = fComptonScatteredPhotonMomentum1.cross(annihilation_z_axis);
     const G4double& v1_mag = v1.mag();
     G4double phi1 = std::acos(v1*annihilation_y_axis/v1_mag);
-//    G4cout << "phi1: " << phi1 << G4endl;
-    const G4ThreeVector v2 = fComptonElectronMomentum2.cross(annihilation_z_axis);
+    G4cout << "phi1: " << phi1 << G4endl;
+    const G4ThreeVector v2 = fComptonScatteredPhotonMomentum2.cross(annihilation_z_axis);
     const G4double& v2_mag = v2.mag();
     G4double phi2 = std::acos(v2*annihilation_y_axis/v2_mag);
-//    G4cout << "phi2: " << phi2 << G4endl;
+    G4cout << "phi2: " << phi2 << G4endl;
     fpRunAction->RecordDeltaPhi(TangleRunAction::Data(phi2,phi1));
   } else {
     G4cout << "No double Comptons" << G4endl;
@@ -89,32 +89,13 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
         << "1st photon found: trackID: " << track->GetTrackID()
         << ", preStepPointPosition: " << preStepPoint->GetPosition()
         << ", postStepPointPosition: " << postStepPoint->GetPosition()
-        << ", position: " << track->GetPosition()
-        << ", momentum: " << track->GetMomentum()
+        << ", preStepPointMomentum: " << preStepPoint->GetMomentum()
+        << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
         << ", polarisation: " << preStepPoint->GetPolarization()
         << G4endl;
-//        // We want the electron from the Compton process.
-        G4EventManager* eventManager = G4EventManager::GetEventManager();
-        G4TrackingManager* trackingManager = eventManager->GetTrackingManager();
-        G4SteppingManager* steppingManager = trackingManager->GetSteppingManager();
-//        const G4TrackVector* secondaries = steppingManager->GetSecondary();
-//        if (secondaries->size() != 1) {
-//          G4cerr << "oops" << G4endl;
-////          abort();
-//        }
         fPhotonOriginPosition1 = preStepPoint->GetPosition();
         fPhotonPolarisation1 = preStepPoint->GetPolarization();
-//        fComptonElectronPosition1 = (*secondaries)[0]->GetPosition();
-//        fComptonElectronMomentum1 = (*secondaries)[0]->GetMomentum();
-//        if (fComptonElectronPosition1 != postStepPoint->GetPosition()) {
-//          G4cout << "Positions don't match" << G4endl;
-//          //          abort();
-//        }
-//        G4cout
-//        << "Electron position: " << fComptonElectronPosition1
-//        << ", momentum: " << fComptonElectronMomentum1
-//        << G4endl;
-                         //        steppingManager->GetS  ??????????
+        // We want the scattered photon
         fComptonScatteredPhotonPosition1 = postStepPoint->GetPosition();
         fComptonScatteredPhotonMomentum1 = postStepPoint->GetMomentum();
         G4cout
@@ -128,35 +109,22 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
         if (track->GetCurrentStepNumber() == 1) {
           fComptonScatteringAnnihilationPhotonFound2 = true;
           // This is the first step of the second photon
-//          G4cout
-//          << "2nd photon found: trackID: " << track->GetTrackID()
-//          << ", preStepPointPosition: " << preStepPoint->GetPosition()
-//          << ", postStepPointPosition: " << postStepPoint->GetPosition()
-//          << ", position: " << track->GetPosition()
-//          << ", momentum: " << track->GetMomentum()
-//          << ", polarisation: " << preStepPoint->GetPolarization()
-//          << G4endl;
-          // We want the electron from the Compton process.
-          G4EventManager* eventManager = G4EventManager::GetEventManager();
-          G4TrackingManager* trackingManager = eventManager->GetTrackingManager();
-          G4SteppingManager* steppingManager = trackingManager->GetSteppingManager();
-          const G4TrackVector* secondaries = steppingManager->GetSecondary();
-          if (secondaries->size() != 1) {
-            G4cerr << "oops" << G4endl;
-//            abort();
-          }
+          G4cout
+          << "2nd photon found: trackID: " << track->GetTrackID()
+          << ", preStepPointPosition: " << preStepPoint->GetPosition()
+          << ", postStepPointPosition: " << postStepPoint->GetPosition()
+          << ", preStepPointMomentum: " << preStepPoint->GetMomentum()
+          << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
+          << ", polarisation: " << preStepPoint->GetPolarization()
+          << G4endl;
           fPhotonOriginPosition2 = preStepPoint->GetPosition();
           fPhotonPolarisation2 = preStepPoint->GetPolarization();
-          fComptonElectronPosition2 = (*secondaries)[0]->GetPosition();
-          fComptonElectronMomentum2 = (*secondaries)[0]->GetMomentum();
-          if (fComptonElectronPosition2 != postStepPoint->GetPosition()) {
-            G4cout << "Positions don't match" << G4endl;
-//            abort();
-          }
-//          G4cout
-//          << "Electron position: " << fComptonElectronPosition2
-//          << ", momentum: " << fComptonElectronMomentum2
-//          << G4endl;
+          fComptonScatteredPhotonPosition2 = postStepPoint->GetPosition();
+          fComptonScatteredPhotonMomentum2 = postStepPoint->GetMomentum();
+          G4cout
+          << "Scattered photon position: " << fComptonScatteredPhotonPosition2
+          << ", momentum: " << fComptonScatteredPhotonMomentum2
+          << G4endl;
         }
       } else {
         if (track->GetCurrentStepNumber() == 1) {
