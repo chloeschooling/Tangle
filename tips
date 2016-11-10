@@ -1,0 +1,1 @@
+cat outFile.csv | awk -F, 'BEGIN{pi=4*atan2(1,1)}($1!="#"){print(1,($2-$3)*180/pi)}' | whist.pl -360 360 360 >x.hist
