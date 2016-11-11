@@ -52,13 +52,16 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(fPhotonPolarisation1)).unit();
     const G4ThreeVector annihilation_x_axis = annihilation_y_axis.cross(annihilation_z_axis);
     const G4ThreeVector v1 = fComptonScatteredPhotonMomentum1.cross(annihilation_z_axis);
+    G4cout << "Scattering plane1: " << v1.unit() << G4endl;
     const G4double& v1_mag = v1.mag();
     G4double phi1 = std::acos(v1*annihilation_y_axis/v1_mag);
-//    G4cout << "phi1: " << phi1 << G4endl;
+    G4cout << "phi1: " << phi1 << G4endl;
     const G4ThreeVector v2 = fComptonScatteredPhotonMomentum2.cross(annihilation_z_axis);
+    G4cout << "Scattering plane2: " << v2.unit() << G4endl;
     const G4double& v2_mag = v2.mag();
     G4double phi2 = std::acos(v2*annihilation_y_axis/v2_mag);
-//    G4cout << "phi2: " << phi2 << G4endl;
+    G4cout << "phi2: " << phi2 << G4endl;
+    G4cout << "phi2-phi1: " << phi2-phi1 << G4endl;
     fpRunAction->RecordDeltaPhi(TangleRunAction::Data(phi2,phi1));
   } else {
     G4cout << "No double Comptons" << G4endl;
@@ -93,6 +96,9 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
 //        << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
 //        << ", polarisation: " << preStepPoint->GetPolarization()
 //        << G4endl;
+        G4cout << "Scattering plane: "
+        << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
+        << G4endl;
         fPhotonOriginPosition1 = preStepPoint->GetPosition();
         fPhotonPolarisation1 = preStepPoint->GetPolarization();
         // We want the scattered photon
@@ -117,6 +123,9 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
 //          << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
 //          << ", polarisation: " << preStepPoint->GetPolarization()
 //          << G4endl;
+          G4cout << "Scattering plane: "
+          << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
+          << G4endl;
           fPhotonOriginPosition2 = preStepPoint->GetPosition();
           fPhotonPolarisation2 = preStepPoint->GetPolarization();
           fComptonScatteredPhotonPosition2 = postStepPoint->GetPosition();
