@@ -12,7 +12,8 @@
 #include "G4PhysicalConstants.hh"
 
 TangleSensitiveDetector::TangleSensitiveDetector
-(const G4String& name, TangleRunAction* runAction)
+(const G4String& name,
+ TangleRunAction* runAction)
 : G4VSensitiveDetector(name)
 , fpRunAction(runAction)
 {}
@@ -31,23 +32,22 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     G4ThreeVector difference = annihilation_z_axis - (fPhotonOriginPosition2 - fComptonScatteredPhotonPosition2).unit();
     if (difference.mag() > 0.0000001) {
       G4cerr << "Axis mis-alignment" << G4endl;
-//      abort();
+      abort();
     }
-//    G4double polarisationScalarProduct = fPhotonPolarisation1 * fPhotonPolarisation2;
-//    G4cout << "polarisationScalarProduct: " << polarisationScalarProduct << G4endl;
-//    if (std::abs(polarisationScalarProduct) > 0.00001) {
-//      G4cout << "Polarisations not at right angles; scalar product: " << polarisationScalarProduct << G4endl;
-//    }
+    G4double polarisationScalarProduct = fPhotonPolarisation1 * fPhotonPolarisation2;
+    G4cout << "polarisationScalarProduct: " << polarisationScalarProduct << G4endl;
+    if (std::abs(polarisationScalarProduct) > 0.00001) {
+      G4cout << "Polarisations not at right angles; scalar product: " << polarisationScalarProduct << G4endl;
+    }
     G4ThreeVector polarisationVectorProduct = fPhotonPolarisation1.cross(fPhotonPolarisation2);
-//    G4cout << "polarisationVectorProduct: " << polarisationVectorProduct << G4endl;
-//    G4cout << "annihilation_z_axis: " << annihilation_z_axis << G4endl;
+    G4cout << "polarisationVectorProduct: " << polarisationVectorProduct << G4endl;
+    G4cout << "annihilation_z_axis: " << annihilation_z_axis << G4endl;
     if (std::abs((polarisationVectorProduct.cross(annihilation_z_axis).mag())) > 0.00001) {
       G4cout << "Polarisations not perpendicular to direction;"
       << "\n  vector product: " << polarisationVectorProduct
       << "\n  direction: " << annihilation_z_axis
       << G4endl;
     }
-//    const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(G4ThreeVector(1.,0.,0.))).unit();
     // Make y' perp. to polarisation of first photon
     const G4ThreeVector annihilation_y_axis = (annihilation_z_axis.cross(fPhotonPolarisation1)).unit();
     const G4ThreeVector annihilation_x_axis = annihilation_y_axis.cross(annihilation_z_axis);
@@ -64,7 +64,7 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     G4cout << "phi2-phi1: " << phi2-phi1 << G4endl;
     fpRunAction->RecordDeltaPhi(TangleRunAction::Data(phi2,phi1));
   } else {
-    G4cout << "No double Comptons" << G4endl;
+    G4cout << "Compton scattering of two photons not found in this event." << G4endl;
   }
 }
 
@@ -88,14 +88,15 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
       if (track->GetCurrentStepNumber() == 1) {
         fComptonScatteringAnnihilationPhotonFound1 = true;
         // This is the first step of the first photon
-//        G4cout
-//        << "1st photon found: trackID: " << track->GetTrackID()
-//        << ", preStepPointPosition: " << preStepPoint->GetPosition()
-//        << ", postStepPointPosition: " << postStepPoint->GetPosition()
-//        << ", preStepPointMomentum: " << preStepPoint->GetMomentum()
-//        << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
-//        << ", polarisation: " << preStepPoint->GetPolarization()
-//        << G4endl;
+        G4cout
+        << "1st photon found: trackID: " << track->GetTrackID()
+        << ", preStepPointPosition: " << preStepPoint->GetPosition()
+        << ", postStepPointPosition: " << postStepPoint->GetPosition()
+        << ", preStepPointMomentum: " << preStepPoint->GetMomentum()
+        << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
+        << ", preStepPolarisation: " << preStepPoint->GetPolarization()
+        << ", postStepPolarisation: " << postStepPoint->GetPolarization()
+        << G4endl;
         G4cout << "Scattering plane: "
         << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
         << G4endl;
@@ -104,10 +105,10 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
         // We want the scattered photon
         fComptonScatteredPhotonPosition1 = postStepPoint->GetPosition();
         fComptonScatteredPhotonMomentum1 = postStepPoint->GetMomentum();
-//        G4cout
-//        << "Scattered photon position: " << fComptonScatteredPhotonPosition1
-//        << ", momentum: " << fComptonScatteredPhotonMomentum1
-//        << G4endl;
+        G4cout
+        << "Scattered photon position: " << fComptonScatteredPhotonPosition1
+        << ", momentum: " << fComptonScatteredPhotonMomentum1
+        << G4endl;
       }
     } else {
       // First photon found so look for second
@@ -115,25 +116,27 @@ G4bool TangleSensitiveDetector::ProcessHits(G4Step* step,
         if (track->GetCurrentStepNumber() == 1) {
           fComptonScatteringAnnihilationPhotonFound2 = true;
           // This is the first step of the second photon
-//          G4cout
-//          << "2nd photon found: trackID: " << track->GetTrackID()
-//          << ", preStepPointPosition: " << preStepPoint->GetPosition()
-//          << ", postStepPointPosition: " << postStepPoint->GetPosition()
-//          << ", preStepPointMomentum: " << preStepPoint->GetMomentum()
-//          << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
-//          << ", polarisation: " << preStepPoint->GetPolarization()
-//          << G4endl;
+          G4cout
+          << "2nd photon found: trackID: " << track->GetTrackID()
+          << ", preStepPointPosition: " << preStepPoint->GetPosition()
+          << ", postStepPointPosition: " << postStepPoint->GetPosition()
+          << ", preStepPointMomentum: " << preStepPoint->GetMomentum()
+          << ", postStepPointMomentum: " << postStepPoint->GetMomentum()
+          << ", preStepPolarisation: " << preStepPoint->GetPolarization()
+          << ", postStepPolarisation: " << postStepPoint->GetPolarization()
+          << G4endl;
           G4cout << "Scattering plane: "
           << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
           << G4endl;
           fPhotonOriginPosition2 = preStepPoint->GetPosition();
           fPhotonPolarisation2 = preStepPoint->GetPolarization();
+          // We want the scattered photon
           fComptonScatteredPhotonPosition2 = postStepPoint->GetPosition();
           fComptonScatteredPhotonMomentum2 = postStepPoint->GetMomentum();
-//          G4cout
-//          << "Scattered photon position: " << fComptonScatteredPhotonPosition2
-//          << ", momentum: " << fComptonScatteredPhotonMomentum2
-//          << G4endl;
+          G4cout
+          << "Scattered photon position: " << fComptonScatteredPhotonPosition2
+          << ", momentum: " << fComptonScatteredPhotonMomentum2
+          << G4endl;
         }
       } else {
         if (track->GetCurrentStepNumber() == 1) {

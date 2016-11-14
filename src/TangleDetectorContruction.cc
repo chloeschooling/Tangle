@@ -48,13 +48,13 @@ G4VPhysicalVolume* TangleDetectorConstruction::Construct()
 
 void TangleDetectorConstruction::ConstructSDandField()
 {
-  TangleRunAction* pRunAction =
-  const_cast<TangleRunAction*>
-  (static_cast<const TangleRunAction*>
-   (G4RunManager::GetRunManager()->GetUserRunAction()));
-
-  G4SDManager* pSDman = G4SDManager::GetSDMpointer();
-  G4VSensitiveDetector* waterSD = new TangleSensitiveDetector("Water",pRunAction);
-  pSDman->AddNewDetector(waterSD);
-  fpWater_log->SetSensitiveDetector(waterSD);
+//  TangleRunAction* pRunAction =
+//  const_cast<TangleRunAction*>
+//  (static_cast<const TangleRunAction*>
+//   (G4RunManager::GetRunManager()->GetUserRunAction()));
+//
+//  G4SDManager* pSDman = G4SDManager::GetSDMpointer();
+//  G4VSensitiveDetector* waterSD = new TangleSensitiveDetector("Water",pRunAction);
+//  pSDman->AddNewDetector(waterSD);
+//  fpWater_log->SetSensitiveDetector(waterSD);
 }

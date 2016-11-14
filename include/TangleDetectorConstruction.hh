@@ -1,5 +1,5 @@
-#ifndef TangleDetectorConstruction_h
-#define TangleDetectorConstruction_h 1
+#ifndef TangleDetectorConstruction_hh
+#define TangleDetectorConstruction_hh 1
 
 #include "G4VUserDetectorConstruction.hh"
 

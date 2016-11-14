@@ -1,5 +1,5 @@
-#ifndef TangleActionInitialization_h
-#define TangleActionInitialization_h 1
+#ifndef TangleActionInitialization_hh
+#define TangleActionInitialization_hh 1
 
 #include "G4VUserActionInitialization.hh"
 

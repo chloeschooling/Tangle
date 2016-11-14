@@ -1,5 +1,5 @@
-#ifndef TanglePrimaryGeneratorAction_h
-#define TanglePrimaryGeneratorAction_h 1
+#ifndef TanglePrimaryGeneratorAction_hh
+#define TanglePrimaryGeneratorAction_hh 1
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4GeneralParticleSource.hh"

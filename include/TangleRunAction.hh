@@ -1,5 +1,5 @@
-#ifndef TangleRunAction_h
-#define TangleRunAction_h
+#ifndef TangleRunAction_hh
+#define TangleRunAction_hh
 
 #include "G4UserRunAction.hh"
 

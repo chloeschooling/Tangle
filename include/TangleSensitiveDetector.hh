@@ -1,5 +1,5 @@
-#ifndef PHANTOMSENSITIVEDETECTOR_HH
-#define PHANTOMSENSITIVEDETECTOR_HH
+#ifndef TangleSensitiveDetector_hh
+#define TangleSensitiveDetector_hh
 
 #include "G4VSensitiveDetector.hh"
 
