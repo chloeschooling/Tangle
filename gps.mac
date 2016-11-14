@@ -1,4 +1,12 @@
-/gps/particle e+
-/gps/ang/type iso
-/gps/energy 0 eV
+# Single photon
+/gps/particle gamma
+/gps/energy 500 keV
+/gps/direction 0 0 1
+/gps/polarization 0 1 0
 /gps/position 0 0 0 m
+
+# Positron at rest
+#/gps/particle e+
+#/gps/ang/type iso
+#/gps/energy 0 eV
+#/gps/position 0 0 0 m
