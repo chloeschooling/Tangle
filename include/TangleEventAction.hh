@@ -5,15 +5,13 @@
 #include "globals.hh"
 
 class TangleRunAction;
-class OnePhotonSteppingAction;
+class TangleVSteppingAction;
 
 class TangleEventAction : public G4UserEventAction
 {
 public:
 
-  TangleEventAction
-  (TangleRunAction* runAction,
-   OnePhotonSteppingAction* onePhotonSteppingAction);
+  TangleEventAction(TangleVSteppingAction*);
 
   virtual ~TangleEventAction();
 
@@ -22,8 +20,7 @@ public:
 
 private:
 
-  TangleRunAction* fRunAction;
-  OnePhotonSteppingAction* fOnePhotonSteppingAction;
+  TangleVSteppingAction* fTangleVSteppingAction;
 };
 
 #endif

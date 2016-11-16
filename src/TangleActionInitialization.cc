@@ -24,7 +24,7 @@ void TangleActionInitialization::Build() const
   new OnePhotonSteppingAction(tangleRunAction);
 
   TangleEventAction* tangleEventAction =
-  new TangleEventAction(tangleRunAction, onePhotonSteppingAction);
+  new TangleEventAction(onePhotonSteppingAction);
 
   SetUserAction(new TanglePrimaryGeneratorAction);
   SetUserAction(tangleRunAction);

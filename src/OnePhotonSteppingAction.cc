@@ -39,18 +39,18 @@ void OnePhotonSteppingAction::UserSteppingAction(const G4Step* step)
         // This is the first Compton scatter
         G4StepPoint* preStepPoint = step->GetPreStepPoint();
         
-//        G4cout
-//        << "\nCompton scatter found: trackID: " << track->GetTrackID()
-//        << "\npreStepPointPosition: " << preStepPoint->GetPosition()
-//        << "\npostStepPointPosition: " << postStepPoint->GetPosition()
-//        << "\npreStepPointMomentum: " << preStepPoint->GetMomentum()
-//        << "\npostStepPointMomentum: " << postStepPoint->GetMomentum()
-//        << "\npreStepPolarisation: " << preStepPoint->GetPolarization()
-//        << "\npostStepPolarisation: " << postStepPoint->GetPolarization()
-//        << G4endl;
-//        G4cout << "\nScattering plane: "
-//        << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
-//        << G4endl;
+        G4cout
+        << "\nCompton scatter found: trackID: " << track->GetTrackID()
+        << "\npreStepPointPosition: " << preStepPoint->GetPosition()
+        << "\npostStepPointPosition: " << postStepPoint->GetPosition()
+        << "\npreStepPointMomentum: " << preStepPoint->GetMomentum()
+        << "\npostStepPointMomentum: " << postStepPoint->GetMomentum()
+        << "\npreStepPolarisation: " << preStepPoint->GetPolarization()
+        << "\npostStepPolarisation: " << postStepPoint->GetPolarization()
+        << G4endl;
+        G4cout << "\nScattering plane: "
+        << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
+        << G4endl;
 
         const G4ThreeVector& photon_z_axis = preStepPoint->GetMomentumDirection();
         G4ThreeVector photon_y_axis = photon_z_axis.cross(G4ThreeVector(1,0,0));
@@ -62,17 +62,17 @@ void OnePhotonSteppingAction::UserSteppingAction(const G4Step* step)
         }
         const G4ThreeVector photon_x_axis = photon_y_axis.cross(photon_z_axis);
 
-//        G4cout
-//        << "\nphoton_x_axis: " << photon_x_axis
-//        << "\nphoton_y_axis: " << photon_y_axis
-//        << "\nphoton_z_axis: " << photon_z_axis
-//        << G4endl;
+        G4cout
+        << "\nphoton_x_axis: " << photon_x_axis
+        << "\nphoton_y_axis: " << photon_y_axis
+        << "\nphoton_z_axis: " << photon_z_axis
+        << G4endl;
 
         const G4ThreeVector scattering_plane = (photon_z_axis.cross(postStepPoint->GetMomentum())).unit();
-//        G4cout << "\nScattering_plane: " << scattering_plane << G4endl;
+        G4cout << "\nScattering_plane: " << scattering_plane << G4endl;
 
         G4double phi_scattering = std::acos(scattering_plane*photon_y_axis);
-//        G4cout << "\nphi_scattering: " << phi_scattering << G4endl;
+        G4cout << "\nphi_scattering: " << phi_scattering << G4endl;
 
         fpRunAction->RecordData(TangleRunAction::Data(phi_scattering,0.));
       }

@@ -1,17 +1,17 @@
 #ifndef OnePhotonSteppingAction_hh
 #define OnePhotonSteppingAction_hh
 
-#include "G4UserSteppingAction.hh"
+#include "TangleVSteppingAction.hh"
 #include "globals.hh"
 
 class TangleRunAction;
 
-class OnePhotonSteppingAction : public G4UserSteppingAction
+class OnePhotonSteppingAction : public TangleVSteppingAction
 {
 public:
   OnePhotonSteppingAction(TangleRunAction* runAction);
   virtual void UserSteppingAction(const G4Step*);
-  void ResetAtBeginOfEvent();
+  virtual void ResetAtBeginOfEvent();
 
 private:
   TangleRunAction* fpRunAction;
