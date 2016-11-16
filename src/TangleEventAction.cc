@@ -13,9 +13,10 @@ TangleEventAction::~TangleEventAction()
 
 void TangleEventAction::BeginOfEventAction(const G4Event*)
 {
-  fTangleVSteppingAction->ResetAtBeginOfEvent();
+  fTangleVSteppingAction->BeginOfEventAction();
 }
 
 void TangleEventAction::EndOfEventAction(const G4Event*)
 {   
+  fTangleVSteppingAction->EndOfEventAction();
 }
