@@ -7,7 +7,8 @@
 class TangleVSteppingAction : public G4UserSteppingAction
 {
 public:
-  virtual void ResetAtBeginOfEvent() = 0;
+  virtual void BeginOfEventAction() {};
+  virtual void EndOfEventAction() {};
 };
 
 #endif
