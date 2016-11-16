@@ -34,7 +34,7 @@ void TangleRunAction::BeginOfRunAction(const G4Run*)
   fData.clear();
 }
 
-void TangleRunAction::RecordDeltaPhi(const TangleRunAction::Data& data)
+void TangleRunAction::RecordData(const TangleRunAction::Data& data)
 {
   fData.push_back(data);
 }

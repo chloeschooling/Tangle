@@ -62,7 +62,7 @@ void TangleSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     G4double phi2 = std::acos(v2*annihilation_y_axis/v2_mag);
     G4cout << "phi2: " << phi2 << G4endl;
     G4cout << "phi2-phi1: " << phi2-phi1 << G4endl;
-    fpRunAction->RecordDeltaPhi(TangleRunAction::Data(phi2,phi1));
+    fpRunAction->RecordData(TangleRunAction::Data(phi2,phi1));
   } else {
     G4cout << "Compton scattering of two photons not found in this event." << G4endl;
   }

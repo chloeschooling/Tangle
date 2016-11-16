@@ -22,7 +22,7 @@ public:
   virtual void BeginOfRunAction(const G4Run*);
   virtual void   EndOfRunAction(const G4Run*);
   
-  void RecordDeltaPhi(const Data& data);
+  void RecordData(const Data& data);
 
 private:
   static TangleRunAction* fpMasterRunAction;
