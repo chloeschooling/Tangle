@@ -4,6 +4,7 @@
 #include "TangleRunAction.hh"
 #include "TangleEventAction.hh"
 #include "OnePhotonSteppingAction.hh"
+#include "AnnihilationPhotonsSteppingAction.hh"
 
 TangleActionInitialization::TangleActionInitialization()
 {}
@@ -20,14 +21,16 @@ void TangleActionInitialization::Build() const
 {
   TangleRunAction* tangleRunAction = new TangleRunAction;
 
-  OnePhotonSteppingAction* onePhotonSteppingAction =
-  new OnePhotonSteppingAction(tangleRunAction);
+//  OnePhotonSteppingAction* steppingAction =
+//  new OnePhotonSteppingAction(tangleRunAction);
+  AnnihilationPhotonsSteppingAction* steppingAction =
+  new AnnihilationPhotonsSteppingAction(tangleRunAction);
 
   TangleEventAction* tangleEventAction =
-  new TangleEventAction(onePhotonSteppingAction);
+  new TangleEventAction(steppingAction);
 
   SetUserAction(new TanglePrimaryGeneratorAction);
   SetUserAction(tangleRunAction);
   SetUserAction(tangleEventAction);
-  SetUserAction(onePhotonSteppingAction);
+  SetUserAction(steppingAction);
 }
