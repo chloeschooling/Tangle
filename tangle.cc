@@ -3,7 +3,6 @@
 #include "TangleDetectorConstruction.hh"
 #include "QBBC.hh"
 #include "G4EmLivermorePolarizedPhysics.hh"
-#include "G4EmLowEPPolarizedPhysics.hh"
 #include "TangleActionInitialization.hh"
 #include "G4UIExecutive.hh"
 #include "G4UImanager.hh"
@@ -23,7 +22,6 @@ int main(int argc,char** argv)
   G4VModularPhysicsList* physList = factory.GetReferencePhysList("FTFP_BERT");
   physList->SetVerboseLevel(verbose = 1);
   physList->ReplacePhysics(new G4EmLivermorePolarizedPhysics);
-//  physList->ReplacePhysics(new G4EmLowEPPolarizedPhysics);
   runManager->SetUserInitialization(physList);
 
   runManager->SetUserInitialization(new TangleActionInitialization);
