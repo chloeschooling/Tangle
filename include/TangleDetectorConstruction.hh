@@ -13,7 +13,6 @@ public:
   virtual ~TangleDetectorConstruction();
 
   virtual G4VPhysicalVolume* Construct();
-  void ConstructSDandField();
 
 private:
   G4LogicalVolume* fpWater_log;

@@ -10,9 +10,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4VisAttributes.hh"
-#include "TangleRunAction.hh"
-#include "G4SDManager.hh"
-#include "TangleSensitiveDetector.hh"
 
 TangleDetectorConstruction::TangleDetectorConstruction()
 : fpWater_log(nullptr)
@@ -44,17 +41,4 @@ G4VPhysicalVolume* TangleDetectorConstruction::Construct()
   new G4PVPlacement(G4Transform3D(),fpWater_log,name,world_log,false,0,checkOverlaps);
 
   return physWorld;
-}
-
-void TangleDetectorConstruction::ConstructSDandField()
-{
-//  TangleRunAction* pRunAction =
-//  const_cast<TangleRunAction*>
-//  (static_cast<const TangleRunAction*>
-//   (G4RunManager::GetRunManager()->GetUserRunAction()));
-//
-//  G4SDManager* pSDman = G4SDManager::GetSDMpointer();
-//  G4VSensitiveDetector* waterSD = new TangleSensitiveDetector("Water",pRunAction);
-//  pSDman->AddNewDetector(waterSD);
-//  fpWater_log->SetSensitiveDetector(waterSD);
 }
