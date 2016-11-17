@@ -29,19 +29,19 @@ void AnnihilationPhotonsSteppingAction::EndOfEventAction()
     const G4ThreeVector annihilation_z_axis = (fComptonScatteredPhotonPosition1 - fPhotonOriginPosition1).unit();
     G4ThreeVector difference = annihilation_z_axis - (fPhotonOriginPosition2 - fComptonScatteredPhotonPosition2).unit();
     if (difference.mag() > 0.0000001) {
-      G4cerr << "Axis mis-alignment" << G4endl;
+      G4cerr << "\nAxis mis-alignment" << G4endl;
       abort();
     }
     G4double polarisationScalarProduct = fPhotonPolarisation1 * fPhotonPolarisation2;
 //    G4cout << "polarisationScalarProduct: " << polarisationScalarProduct << G4endl;
     if (std::abs(polarisationScalarProduct) > 0.00001) {
-      G4cout << "Polarisations not at right angles; scalar product: " << polarisationScalarProduct << G4endl;
+      G4cout << "\nPolarisations not at right angles; scalar product: " << polarisationScalarProduct << G4endl;
     }
     G4ThreeVector polarisationVectorProduct = fPhotonPolarisation1.cross(fPhotonPolarisation2);
 //    G4cout << "polarisationVectorProduct: " << polarisationVectorProduct << G4endl;
 //    G4cout << "annihilation_z_axis: " << annihilation_z_axis << G4endl;
     if (std::abs((polarisationVectorProduct.cross(annihilation_z_axis).mag())) > 0.00001) {
-      G4cout << "Polarisations not perpendicular to direction;"
+      G4cout << "\nPolarisations not perpendicular to direction;"
       << "\n  vector product: " << polarisationVectorProduct
       << "\n  direction: " << annihilation_z_axis
       << G4endl;
@@ -62,7 +62,7 @@ void AnnihilationPhotonsSteppingAction::EndOfEventAction()
 //    G4cout << "phi2-phi1: " << phi2-phi1 << G4endl;
     fpRunAction->RecordData(TangleRunAction::Data(phi2,phi1));
   } else {
-    G4cout << "Compton scattering of two photons not found in this event." << G4endl;
+//    G4cout << "Compton scattering of two photons not found in this event." << G4endl;
   }
 }
 
