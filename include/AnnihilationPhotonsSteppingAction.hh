@@ -21,19 +21,6 @@ private:
   G4int fAnnihilationPhotonTrackID1;
   G4int fAnnihilationPhotonTrackID2;
   TangleRunAction::Data data;
-
-
-
-
-
-//  G4ThreeVector fPhotonOriginPosition1;
-//  G4ThreeVector fPhotonOriginPosition2;
-//  G4ThreeVector fPhotonPolarisation1;
-//  G4ThreeVector fPhotonPolarisation2;
-//  G4ThreeVector fComptonScatteredPhotonPosition1;
-//  G4ThreeVector fComptonScatteredPhotonPosition2;
-//  G4ThreeVector fComptonScatteredPhotonMomentum1;
-//  G4ThreeVector fComptonScatteredPhotonMomentum2;
 };
 
 #endif
