@@ -17,7 +17,7 @@ TangleStackingAction::~TangleStackingAction()
 G4ClassificationOfNewTrack
 TangleStackingAction::ClassifyNewTrack(const G4Track * track)
 {
-  G4cout << "TangleStackingAction::ClassifyNewTrack: fStage: " << fStage << G4endl;
+//  G4cout << "TangleStackingAction::ClassifyNewTrack: fStage: " << fStage << G4endl;
 
   G4ClassificationOfNewTrack classification = fUrgent;
 
@@ -34,16 +34,16 @@ TangleStackingAction::ClassifyNewTrack(const G4Track * track)
 
 void TangleStackingAction::NewStage()
 {
-  G4cout << "TangleStackingAction::NewStage: fStage: " << fStage << G4endl;
+//  G4cout << "TangleStackingAction::NewStage: fStage: " << fStage << G4endl;
 
-  G4cout <<
-  "\n  Particles other than annihilation photons have been tracked."
-  "\n  The annihilation photons will have been transferred to the urgent stack,"
-  "\n  so transfer them back to the waiting stack, then transfer one"
-  "\n  back onto the urgent stack."
-  << G4endl;
+//  G4cout <<
+//  "\n  Particles other than annihilation photons have been tracked."
+//  "\n  The annihilation photons will have been transferred to the urgent stack,"
+//  "\n  so transfer them back to the waiting stack, then transfer one"
+//  "\n  back onto the urgent stack."
+//  << G4endl;
 
-  G4cout << "stackManager->GetNUrgentTrack(): " << stackManager->GetNUrgentTrack() << G4endl;
+//  G4cout << "stackManager->GetNUrgentTrack(): " << stackManager->GetNUrgentTrack() << G4endl;
 
   if(stackManager->GetNUrgentTrack())
   {
