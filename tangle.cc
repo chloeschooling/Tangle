@@ -1,7 +1,6 @@
 #include "G4MTRunManager.hh"
 #include "G4PhysListFactory.hh"
 #include "TangleDetectorConstruction.hh"
-#include "QBBC.hh"
 #include "G4EmLivermorePolarizedPhysics.hh"
 #include "TangleActionInitialization.hh"
 #include "G4UIExecutive.hh"
