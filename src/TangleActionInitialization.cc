@@ -3,6 +3,7 @@
 #include "TanglePrimaryGeneratorAction.hh"
 #include "TangleRunAction.hh"
 #include "TangleEventAction.hh"
+#include "TangleStackingAction.hh"
 #include "OnePhotonSteppingAction.hh"
 #include "AnnihilationPhotonsSteppingAction.hh"
 
@@ -33,4 +34,5 @@ void TangleActionInitialization::Build() const
   SetUserAction(tangleRunAction);
   SetUserAction(tangleEventAction);
   SetUserAction(steppingAction);
+  SetUserAction(new TangleStackingAction);
 }

@@ -34,11 +34,6 @@ void TangleRunAction::BeginOfRunAction(const G4Run*)
   fData.clear();
 }
 
-void TangleRunAction::RecordData(const TangleRunAction::Data& data)
-{
-  fData.push_back(data);
-}
-
 namespace {
   std::ofstream outFile("outFile.csv");
 }
