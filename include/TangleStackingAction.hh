@@ -23,6 +23,8 @@ public:
 
 private:
   G4int fStage;
+  G4bool fFirstAnnihilation;
+  G4bool fFirstPhoton;
 };
 
 #endif /* TangleStackingAction_hh */

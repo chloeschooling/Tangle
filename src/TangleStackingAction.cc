@@ -8,7 +8,9 @@
 #include "G4VProcess.hh"
 
 TangleStackingAction::TangleStackingAction()
-:fStage(0)
+: fStage(0)
+, fFirstAnnihilation(true)
+, fFirstPhoton(true)
 {}
 
 TangleStackingAction::~TangleStackingAction()
@@ -24,9 +26,30 @@ TangleStackingAction::ClassifyNewTrack(const G4Track * track)
   const G4VProcess* creatorProcess = track->GetCreatorProcess();
   if (creatorProcess == nullptr) return classification;
 
-  // At any stage, push annihilation photons onto waiting stack.
   if (creatorProcess->GetProcessName() == "annihil") {
-    classification = fWaiting;
+    // For first stage, push annihilation photons onto waiting stack.
+    if (fStage == 0) classification = fWaiting;
+    else {
+      // For subsequent stages push all but first annihilation onto waiting stack
+      G4int parentID = track->GetParentID();
+      static G4int parentID1 = -1;
+      if (fFirstAnnihilation) {
+        if (fFirstPhoton) {
+          fFirstPhoton = false;
+          parentID1 = parentID;
+        } else {
+          if (parentID == parentID1) {
+            // Its mate has been foound
+            fFirstAnnihilation = false;
+          } else {
+            classification = fWaiting;
+          }
+        }
+      } else {
+        // Not first annihilation
+        classification = fWaiting;
+      }
+    }
   }
 
   return classification;
@@ -34,6 +57,8 @@ TangleStackingAction::ClassifyNewTrack(const G4Track * track)
 
 void TangleStackingAction::NewStage()
 {
+  fStage++;
+
 //  G4cout << "TangleStackingAction::NewStage: fStage: " << fStage << G4endl;
 
 //  G4cout <<
@@ -47,24 +72,18 @@ void TangleStackingAction::NewStage()
 
   if(stackManager->GetNUrgentTrack())
   {
-    // Transfer all tracks in Urgent stack to Waiting stack, since all tracks
-    // in Waiting stack have already been transfered to Urgent stack before
-    // invokation of this method.
-    stackManager->TransferStackedTracks(fUrgent,fWaiting);
-
-    // Then, transfer only one track to Urgent stack.
-    stackManager->TransferOneStackedTrack(fWaiting,fUrgent);
-    /////////////////// PROBLEM ////////////////
-    // We want the order in which photons are delivered to be two at a time
-    // from the same annihilation but the above mixes the order if there are
-    // more than one annihilation per event.
-    /////////////////// PROBLEM ////////////////
+    // Send all tracks now in the urgent stack to ClassifyNewTrack so that
+    // an annihilation pair is left on urgent stack.
+    stackManager->ReClassify();
+    // Reset flags for further annihilations, if any.
+    fFirstAnnihilation = true;
+    fFirstPhoton = true;
   }
-
-  fStage++;
 }
 
 void TangleStackingAction::PrepareNewEvent()
 {
   fStage = 0;
+  fFirstAnnihilation = true;
+  fFirstPhoton = true;
 }
