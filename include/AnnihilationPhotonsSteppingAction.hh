@@ -18,8 +18,6 @@ private:
   TangleRunAction* fpRunAction;
   G4bool fComptonScatteringAnnihilationPhotonFound1;
   G4bool fComptonScatteringAnnihilationPhotonFound2;
-  G4int fAnnihilationPhotonTrackID1;
-  G4int fAnnihilationPhotonTrackID2;
   TangleRunAction::Data data;
 };
 
