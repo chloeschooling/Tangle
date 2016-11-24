@@ -25,6 +25,9 @@ private:
   G4int fStage;
   G4bool fFirstAnnihilation;
   G4bool fFirstPhoton;
+
+  // This is for remembering something about the first photon.
+  G4int fParentID1;
 };
 
 #endif /* TangleStackingAction_hh */

@@ -21,6 +21,7 @@ private:
   G4bool fComptonScatteringAnnihilationPhotonFound2;
 
   // These data memebers are used to remember things about the first photon.
+  G4int fTrackID1;
   G4int fParentID1;
   G4double fTheta1;
   G4double fPhi1;
