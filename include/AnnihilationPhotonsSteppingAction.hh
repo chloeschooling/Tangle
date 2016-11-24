@@ -16,8 +16,19 @@ public:
 
 private:
   TangleRunAction* fpRunAction;
+
   G4bool fComptonScatteringAnnihilationPhotonFound1;
   G4bool fComptonScatteringAnnihilationPhotonFound2;
+
+  // These data memebers are used to remember things about the first photon.
+  G4int fParentID1;
+  G4double fTheta1;
+  G4double fPhi1;
+  G4ThreeVector fAnnihilation_x_axis;
+  G4ThreeVector fAnnihilation_y_axis;
+  G4ThreeVector fAnnihilation_z_axis;
+  G4ThreeVector fScatteringPlane;
+
   TangleRunAction::Data data;
 };
 
