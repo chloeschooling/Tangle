@@ -107,7 +107,8 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 #endif // AnnihilationPhotonsSteppingActionConsistencyCheck
 #if defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
           const G4ThreeVector originalScatteringPlane2 = postStepPoint->GetMomentum().cross(annihilation_z_axis).unit();
-          const G4double originalTheta2 = std::acos(postStepPoint->GetMomentumDirection()*annihilation_z_axis);
+          // Theta is wrt photon2 direction - hence minus signs
+          const G4double originalTheta2 = std::acos(-postStepPoint->GetMomentumDirection()*annihilation_z_axis);
           const G4double originalPhi2 = std::acos(originalScatteringPlane2*annihilation_y_axis);
 #endif  // defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
 #ifdef AnnihilationPhotonsSteppingActionPrinting
@@ -120,11 +121,9 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
           << "\n  postStepPointMomentum: " << postStepPoint->GetMomentum()
           << "\n  preStepPolarisation: " << preStepPoint->GetPolarization()
           << "\n  postStepPolarisation: " << postStepPoint->GetPolarization()
-          << "\n  Scattering plane (local): "
-          << preStepPoint->GetMomentum().cross(postStepPoint->GetMomentum()).unit()
-          << "\n  original scattering plane2 (wrt photon1 axes): " << originalScatteringPlane2
-          << "\n  originalTheta2 (wrt photon1 axes): " << originalTheta2
-          << "\n  originalPhi2 (wrt photon1 axes): " << originalPhi2
+          << "\n  originalScatteringPlane2: " << originalScatteringPlane2
+          << "\n  originalTheta2: " << originalTheta2
+          << "\n  originalPhi2: " << originalPhi2
           << G4endl;
 #endif  // AnnihilationPhotonsSteppingActionPrinting
 
@@ -134,20 +133,21 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
           // Draw azimuthal angle from the entangled distribution.
           G4double phi2 = originalPhi2;
 
-          G4ThreeVector newMomentumDirectionPrime;  // in Compton scattering system
-          newMomentumDirectionPrime.setRThetaPhi(1.,theta2,phi2);
+          G4ThreeVector newMomentumDirectionPrime;
+          // In photon1 system - hence the pi-theta2
+          newMomentumDirectionPrime.setRThetaPhi(1.,pi-theta2,phi2);
           // Transform to global system
           const G4ThreeVector& v = newMomentumDirectionPrime;
           const G4ThreeVector& xp = annihilation_x_axis;
           const G4ThreeVector& yp = annihilation_y_axis;
           const G4ThreeVector& zp = annihilation_z_axis;
-          G4ThreeVector newMomentum;
-          newMomentum.setX(v.x()*xp.x()+v.y()*yp.x()+v.z()*zp.x());
-          newMomentum.setY(v.x()*xp.y()+v.y()*yp.y()+v.z()*zp.y());
-          newMomentum.setZ(v.x()*xp.z()+v.y()*yp.z()+v.z()*zp.z());
+          G4ThreeVector newMomentumDirection;
+          newMomentumDirection.setX(v.x()*xp.x()+v.y()*yp.x()+v.z()*zp.x());
+          newMomentumDirection.setY(v.x()*xp.y()+v.y()*yp.y()+v.z()*zp.y());
+          newMomentumDirection.setZ(v.x()*xp.z()+v.y()*yp.z()+v.z()*zp.z());
 #if defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
-          const G4ThreeVector newScatteringPlane = newMomentum.cross(annihilation_z_axis).unit();
-          const G4double newTheta2 = std::acos(newMomentum*annihilation_z_axis);
+          const G4ThreeVector newScatteringPlane = newMomentumDirection.cross(-annihilation_z_axis).unit();
+          const G4double newTheta2 = std::acos(-newMomentumDirection*annihilation_z_axis);
           const G4double newPhi2 = std::acos(newScatteringPlane*annihilation_y_axis);
 #endif  // defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
 #ifdef AnnihilationPhotonsSteppingActionConsistencyCheck
@@ -155,31 +155,31 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
             G4cout
             << "\n  Inconsistent calculation of phi"
 #ifndef AnnihilationPhotonsSteppingActionPrinting
-            << "\n  Original scattering plane2 (wrt photon1 axes): " << originalScatteringPlane2
-            << "\n  New scattering plane2 (wrt photon1 axes): " << newScatteringPlane
-            << "\n  originalTheta2 (wrt photon1 axes): " << originalTheta2
-            << "\n  Desired theta2 (wrt photon1 axes): " << theta2
-            << "\n  Achieved theta2 (wrt photon1 axes): " << newTheta2
-            << "\n  originalPhi2 (wrt photon1 axes): " << originalPhi2
-            << "\n  Desired phi2 (wrt photon1 axes): " << phi2
-            << "\n  Achieved phi2 (wrt photon1 axes): " << newPhi2
+            << "\n  Original scattering plane2: " << originalScatteringPlane2
+            << "\n  New scattering plane2: " << newScatteringPlane
+            << "\n  originalTheta2: " << originalTheta2
+            << "\n  Desired theta2: " << theta2
+            << "\n  Achieved theta2: " << newTheta2
+            << "\n  originalPhi2: " << originalPhi2
+            << "\n  Desired phi2: " << phi2
+            << "\n  Achieved phi2: " << newPhi2
 #endif  // AnnihilationPhotonsSteppingActionPrinting
             << G4endl;
           }
 #endif // AnnihilationPhotonsSteppingActionConsistencyCheck
 #ifdef AnnihilationPhotonsSteppingActionPrinting
           G4cout
-          << "\n  Original scattering plane2 (wrt photon1 axes): " << originalScatteringPlane2
-          << "\n  New scattering plane2 (wrt photon1 axes): " << newScatteringPlane
-          << "\n  originalTheta2 (wrt photon1 axes): " << originalTheta2
-          << "\n  Desired theta2 (wrt photon1 axes): " << theta2
-          << "\n  Achieved theta2 (wrt photon1 axes): " << newTheta2
-          << "\n  originalPhi2 (wrt photon1 axes): " << originalPhi2
-          << "\n  Desired phi2 (wrt photon1 axes): " << phi2
-          << "\n  Achieved phi2 (wrt photon1 axes): " << newPhi2
+          << "\n  Original scattering plane2: " << originalScatteringPlane2
+          << "\n  New scattering plane2: " << newScatteringPlane
+          << "\n  originalTheta2: " << originalTheta2
+          << "\n  Desired theta2: " << theta2
+          << "\n  Achieved theta2: " << newTheta2
+          << "\n  originalPhi2: " << originalPhi2
+          << "\n  Desired phi2: " << phi2
+          << "\n  Achieved phi2: " << newPhi2
           << G4endl;
 #endif  // AnnihilationPhotonsSteppingActionPrinting
-          track->SetMomentumDirection(newMomentum);
+          track->SetMomentumDirection(newMomentumDirection);
 
 
           data.fPhi2 = phi2;
