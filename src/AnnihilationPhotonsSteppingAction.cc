@@ -32,7 +32,7 @@ void AnnihilationPhotonsSteppingAction::EndOfEventAction()
 {
 }
 
-#define AnnihilationPhotonsSteppingActionPrinting
+//#define AnnihilationPhotonsSteppingActionPrinting
 #define AnnihilationPhotonsSteppingActionConsistencyCheck
 
 namespace {
@@ -54,8 +54,8 @@ namespace {
     const G4ThreeVector ontoXYPlane = v.cross(z_axis);
     // ontoXYPlane is a vector in the xy-plane, but perpendicular to the
     // projection of the scattered photon, so
-    const G4double projection_x = ontoXYPlane*y_axis;
-    const G4double projection_y = -ontoXYPlane*x_axis;
+    const G4double projection_x = -ontoXYPlane*y_axis;
+    const G4double projection_y = ontoXYPlane*x_axis;
     phi = std::atan2(projection_y,projection_x);
   }
 }
@@ -184,7 +184,7 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     // Scattering angle is unchanged.
     G4double desiredTheta2 = originalTheta2;
     // Draw azimuthal angle from the entangled distribution.  <<<<<<<<<<<<< NEXT JOB
-    G4double desiredPhi2 = 0.1;
+    G4double desiredPhi2 = originalPhi2;
     if (desiredPhi2 > pi) {
       desiredPhi2 -= twopi;
     }
@@ -193,8 +193,9 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     }
 
     G4ThreeVector newMomentumDirectionPrime;
-    // In frame of second photon
+    // In frame of second photon (denoted by "prime")
     newMomentumDirectionPrime.setRThetaPhi(1.,desiredTheta2,desiredPhi2);
+    // Transform to global system
     // Some aliases
     const G4ThreeVector& v = newMomentumDirectionPrime;
     const G4ThreeVector& xp = photon2_x_axis;
