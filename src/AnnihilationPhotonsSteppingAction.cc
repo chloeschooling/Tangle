@@ -32,8 +32,33 @@ void AnnihilationPhotonsSteppingAction::EndOfEventAction()
 {
 }
 
-//#define AnnihilationPhotonsSteppingActionPrinting
+#define AnnihilationPhotonsSteppingActionPrinting
 #define AnnihilationPhotonsSteppingActionConsistencyCheck
+
+namespace {
+  void CalculateThetaPhi
+  (const G4ThreeVector& v,
+   const G4ThreeVector& z_axis,
+   // Output quantities
+   G4ThreeVector& y_axis,
+   G4ThreeVector& x_axis,
+   G4double& cosTheta,
+   G4double& theta,
+   G4double& phi)
+  {
+    cosTheta = v*z_axis;
+    theta = std::acos(cosTheta);
+    // Make y' perpendicular to global x-axis.
+    y_axis = (z_axis.cross(G4ThreeVector(1,0,0))).unit();
+    x_axis = y_axis.cross(z_axis);
+    const G4ThreeVector ontoXYPlane = v.cross(z_axis);
+    // ontoXYPlane is a vector in the xy-plane, but perpendicular to the
+    // projection of the scattered photon, so
+    const G4double projection_x = ontoXYPlane*y_axis;
+    const G4double projection_y = -ontoXYPlane*x_axis;
+    phi = std::atan2(projection_y,projection_x);
+  }
+}
 
 void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 {
@@ -59,15 +84,23 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
   if (!fComptonScatteringAnnihilationPhotonFound1) {
 
     fComptonScatteringAnnihilationPhotonFound1 = true;
+
     fTrackID1 = track->GetTrackID();
     fParentID1 = track->GetParentID();
-    fAnnihilation_z_axis = preStepPoint->GetMomentumDirection();
-    fTheta1 = std::acos(postStepPoint->GetMomentumDirection()*fAnnihilation_z_axis);
-    // Make y' perpendicular to global x-axis.
-    fAnnihilation_y_axis = (fAnnihilation_z_axis.cross(G4ThreeVector(1,0,0))).unit();
-    fAnnihilation_x_axis = fAnnihilation_y_axis.cross(fAnnihilation_z_axis);
-    fScatteringPlane = postStepPoint->GetMomentum().cross(fAnnihilation_z_axis).unit();
-    fPhi1 = std::acos(fScatteringPlane*fAnnihilation_y_axis);
+
+    fPhoton1_z_axis = preStepPoint->GetMomentumDirection();
+
+    G4ThreeVector photon1_y_axis;
+    G4ThreeVector photon1_x_axis;
+    CalculateThetaPhi
+    (postStepPoint->GetMomentumDirection(),
+     fPhoton1_z_axis,
+     photon1_y_axis,
+     photon1_x_axis,
+     fCosTheta1,
+     fTheta1,
+     fPhi1);
+
 #ifdef AnnihilationPhotonsSteppingActionPrinting
     G4cout
     << "\n  1st photon found: track ID: " << track->GetTrackID()
@@ -78,11 +111,11 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     << "\n  postStepPointMomentum: " << postStepPoint->GetMomentum()
     << "\n  preStepPolarisation: " << preStepPoint->GetPolarization()
     << "\n  postStepPolarisation: " << postStepPoint->GetPolarization()
-    << "\n  Scattering plane: " << fScatteringPlane
     << "\n  fTheta1: " << fTheta1
     << "\n  fPhi1: " << fPhi1
     << G4endl;
 #endif  // AnnihilationPhotonsSteppingActionPrinting
+
     data.fPhi1 = fPhi1;
 
   } else if (!fComptonScatteringAnnihilationPhotonFound2) {
@@ -90,23 +123,38 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     // Second photon found
     fComptonScatteringAnnihilationPhotonFound2 = true;
 
+    const G4ThreeVector photon2_z_axis = preStepPoint->GetMomentumDirection();
+    G4ThreeVector photon2_y_axis;
+    G4ThreeVector photon2_x_axis;
+    G4double originalCosTheta2;
+    G4double originalTheta2;
+    G4double originalPhi2;
+    CalculateThetaPhi
+    (postStepPoint->GetMomentumDirection(),
+     photon2_z_axis,
+     photon2_y_axis,
+     photon2_x_axis,
+     originalCosTheta2,
+     originalTheta2,
+     originalPhi2);
+
+#ifdef AnnihilationPhotonsSteppingActionConsistencyCheck
     // If there are more than one annhilations in an event and one of the photons
     // of the first does not Compton scatter then we may pick up an annhilation
     // photon from the second, so we must do these checks.  If they fail then
-    // there's a small chance that we will miss an annhilation.
-    const G4int parentID = track->GetParentID();
-    if (parentID != fParentID1)
+    // there's a VERY SMALL chance that we will miss an annhilation.
+    if (track->GetParentID() != fParentID1)
     {
       G4cout
       << "\n  Annihilation photons do not have the same parent ID"
       << "\n  track/parent IDs: " << fTrackID1 << '/' << fParentID1
-      << ',' << track->GetTrackID() << '/' << parentID
+      << ',' << track->GetTrackID() << '/' << track->GetParentID()
       << G4endl;
       // We are out of step - no easy way to get back in step with this algorithm
       // Do not allow any more annihilations this event.
       return;
     }
-    const G4double dotProduct = preStepPoint->GetMomentumDirection().unit() * fAnnihilation_z_axis;
+    const G4double dotProduct = preStepPoint->GetMomentumDirection().unit()*fPhoton1_z_axis;
     if (dotProduct > -0.999999) {
       G4cout <<
       "\n  Annihilation photons not in opposite directions: dot product" << dotProduct
@@ -115,12 +163,8 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
       // Do not allow any more annihilations this event.
       return;
     }
-#if defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
-    const G4ThreeVector originalScatteringPlane2 = postStepPoint->GetMomentum().cross(fAnnihilation_z_axis).unit();
-    // Theta is wrt photon2 direction - hence minus signs
-    const G4double originalTheta2 = std::acos(-postStepPoint->GetMomentumDirection()*fAnnihilation_z_axis);
-    const G4double originalPhi2 = std::acos(originalScatteringPlane2*fAnnihilation_y_axis);
-#endif  // defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
+#endif // AnnihilationPhotonsSteppingActionConsistencyCheck
+
 #ifdef AnnihilationPhotonsSteppingActionPrinting
     G4cout
     << "\n  2nd photon found: track ID: " << track->GetTrackID()
@@ -131,7 +175,6 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     << "\n  postStepPointMomentum: " << postStepPoint->GetMomentum()
     << "\n  preStepPolarisation: " << preStepPoint->GetPolarization()
     << "\n  postStepPolarisation: " << postStepPoint->GetPolarization()
-    << "\n  originalScatteringPlane2: " << originalScatteringPlane2
     << "\n  originalTheta2: " << originalTheta2
     << "\n  originalPhi2: " << originalPhi2
     << G4endl;
@@ -139,60 +182,73 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 
     // Calculate theta and phi of the Compton scatter of the second photon.
     // Scattering angle is unchanged.
-    G4double theta2 = originalTheta2;
+    G4double desiredTheta2 = originalTheta2;
     // Draw azimuthal angle from the entangled distribution.  <<<<<<<<<<<<< NEXT JOB
-    G4double phi2 = originalPhi2;
+    G4double desiredPhi2 = 0.1;
+    if (desiredPhi2 > pi) {
+      desiredPhi2 -= twopi;
+    }
+    if (desiredPhi2 < -pi) {
+      desiredPhi2 += twopi;
+    }
 
     G4ThreeVector newMomentumDirectionPrime;
-    // In photon1 system - hence the pi-theta2
-    newMomentumDirectionPrime.setRThetaPhi(1.,pi-theta2,phi2);
-    // Transform to global system
+    // In frame of second photon
+    newMomentumDirectionPrime.setRThetaPhi(1.,desiredTheta2,desiredPhi2);
+    // Some aliases
     const G4ThreeVector& v = newMomentumDirectionPrime;
-    const G4ThreeVector& xp = fAnnihilation_x_axis;
-    const G4ThreeVector& yp = fAnnihilation_y_axis;
-    const G4ThreeVector& zp = fAnnihilation_z_axis;
+    const G4ThreeVector& xp = photon2_x_axis;
+    const G4ThreeVector& yp = photon2_y_axis;
+    const G4ThreeVector& zp = photon2_z_axis;
+    // In global system
     G4ThreeVector newMomentumDirection;
     newMomentumDirection.setX(v.x()*xp.x()+v.y()*yp.x()+v.z()*zp.x());
     newMomentumDirection.setY(v.x()*xp.y()+v.y()*yp.y()+v.z()*zp.y());
     newMomentumDirection.setZ(v.x()*xp.z()+v.y()*yp.z()+v.z()*zp.z());
+
 #if defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
-    const G4ThreeVector newScatteringPlane = newMomentumDirection.cross(-fAnnihilation_z_axis).unit();
-    const G4double newTheta2 = std::acos(-newMomentumDirection*fAnnihilation_z_axis);
-    const G4double newPhi2 = std::acos(newScatteringPlane*fAnnihilation_y_axis);
+    G4double newCosTheta2;
+    G4double newTheta2;
+    G4double newPhi2;
+    CalculateThetaPhi
+    (newMomentumDirection,
+     photon2_z_axis,
+     photon2_y_axis,
+     photon2_x_axis,
+     newCosTheta2,
+     newTheta2,
+     newPhi2);
 #endif  // defined AnnihilationPhotonsSteppingActionPrinting || defined AnnihilationPhotonsSteppingActionConsistencyCheck
+
 #ifdef AnnihilationPhotonsSteppingActionConsistencyCheck
-    if (std::abs(newPhi2 - phi2) > 0.00001 || std::abs(newTheta2 - theta2) > 0.00001) {
+    if (std::abs(newPhi2 - desiredPhi2) > 0.00001 || std::abs(newTheta2 - desiredTheta2) > 0.00001) {
       G4cout
       << "\n  Inconsistent calculation of phi"
-#ifndef AnnihilationPhotonsSteppingActionPrinting
-      << "\n  Original scattering plane2: " << originalScatteringPlane2
-      << "\n  New scattering plane2: " << newScatteringPlane
       << "\n  originalTheta2: " << originalTheta2
-      << "\n  Desired theta2: " << theta2
-      << "\n  Achieved theta2: " << newTheta2
+      << "\n  desiredTheta2: " << desiredTheta2
+      << "\n  newTheta2: " << newTheta2
       << "\n  originalPhi2: " << originalPhi2
-      << "\n  Desired phi2: " << phi2
-      << "\n  Achieved phi2: " << newPhi2
-#endif  // AnnihilationPhotonsSteppingActionPrinting
+      << "\n  desiredPhi2: " << desiredPhi2
+      << "\n  newPhi2: " << newPhi2
       << G4endl;
     }
 #endif // AnnihilationPhotonsSteppingActionConsistencyCheck
+
 #ifdef AnnihilationPhotonsSteppingActionPrinting
     G4cout
-    << "\n  Original scattering plane2: " << originalScatteringPlane2
-    << "\n  New scattering plane2: " << newScatteringPlane
     << "\n  originalTheta2: " << originalTheta2
-    << "\n  Desired theta2: " << theta2
-    << "\n  Achieved theta2: " << newTheta2
+    << "\n  desiredTheta2: " << desiredTheta2
+    << "\n  newTheta2: " << newTheta2
     << "\n  originalPhi2: " << originalPhi2
-    << "\n  Desired phi2: " << phi2
-    << "\n  Achieved phi2: " << newPhi2
+    << "\n  desiredPhi2: " << desiredPhi2
+    << "\n  newPhi2: " << newPhi2
     << G4endl;
 #endif  // AnnihilationPhotonsSteppingActionPrinting
+
     track->SetMomentumDirection(newMomentumDirection);
 
 
-    data.fPhi2 = phi2;
+    data.fPhi2 = newPhi2;
     fpRunAction->RecordData(data);
 
     //Reset for further possible annihilations in this event.

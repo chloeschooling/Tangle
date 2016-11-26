@@ -23,12 +23,10 @@ private:
   // These data memebers are used to remember things about the first photon.
   G4int fTrackID1;
   G4int fParentID1;
+  G4double fCosTheta1;
   G4double fTheta1;
   G4double fPhi1;
-  G4ThreeVector fAnnihilation_x_axis;
-  G4ThreeVector fAnnihilation_y_axis;
-  G4ThreeVector fAnnihilation_z_axis;
-  G4ThreeVector fScatteringPlane;
+  G4ThreeVector fPhoton1_z_axis;
 
   TangleRunAction::Data data;
 };
