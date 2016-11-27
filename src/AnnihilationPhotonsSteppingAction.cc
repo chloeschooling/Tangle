@@ -81,6 +81,7 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 
   // This is the frst step of an annihilation photon that Compton scatters.
 
+  ///////////////////////////////////////////////////////////////////////////
   if (!fComptonScatteringAnnihilationPhotonFound1) {
 
     fComptonScatteringAnnihilationPhotonFound1 = true;
@@ -90,8 +91,8 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 
     fPhoton1_z_axis = preStepPoint->GetMomentumDirection();
 
-    G4ThreeVector photon1_y_axis;
-    G4ThreeVector photon1_x_axis;
+    G4ThreeVector photon1_y_axis;  // dummy, i.e., not used.
+    G4ThreeVector photon1_x_axis;  // dummy, i.e., not used.
     CalculateThetaPhi
     (postStepPoint->GetMomentumDirection(),
      fPhoton1_z_axis,
@@ -116,9 +117,12 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     << G4endl;
 #endif  // AnnihilationPhotonsSteppingActionPrinting
 
+    data.fTheta1 = fTheta1;
     data.fPhi1 = fPhi1;
 
+    ///////////////////////////////////////////////////////////////////////////
   } else if (!fComptonScatteringAnnihilationPhotonFound2) {
+    ///////////////////////////////////////////////////////////////////////////
 
     // Second photon found
     fComptonScatteringAnnihilationPhotonFound2 = true;
@@ -249,6 +253,7 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     track->SetMomentumDirection(newMomentumDirection);
 
 
+    data.fTheta2 = newTheta2;
     data.fPhi2 = newPhi2;
     fpRunAction->RecordData(data);
 
@@ -256,6 +261,7 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     fComptonScatteringAnnihilationPhotonFound1 = false;
     fComptonScatteringAnnihilationPhotonFound2 = false;
   }
+  ///////////////////////////////////////////////////////////////////////////
 
   return;
 }

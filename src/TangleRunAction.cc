@@ -47,10 +47,12 @@ void TangleRunAction::EndOfRunAction(const G4Run* run)
   if (G4Threading::IsMasterThread()) {
     runType = "Global Run";
     // Workers finished...
-    outFile << "#,phi1,phi2";
+    outFile << "#,theta1,phi1,theta2,phi2";
     for (const auto& pointer: fPointers) {
       for (const auto& data: *pointer) {
-        outFile << "\n," << data.fPhi1 << ',' << data.fPhi2;
+        outFile
+        << "\n," << data.fTheta1 << ',' << data.fPhi1
+        << ',' << data.fTheta2 << ',' << data.fPhi2;
       }
     }
     outFile << std::endl;

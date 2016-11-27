@@ -1,1 +1,7 @@
-cat outFile.csv | awk -F, 'BEGIN{pi=4*atan2(1,1)}($1!="#"){print(1,($2-$3)*180/pi)}' | whist.pl -360 360 360 >x.hist
+# 1-D
+cat outFile.csv | awk -F, 'BEGIN{pi=4*atan2(1,1)}($1!="#"){phi1=$3;phi2=$5;dphi=phi2+phi1;if(dphi>pi)dphi-=2*pi;if(dphi<-pi)dphi+=2*pi;print(1,dphi*180/pi)}' | whist.pl -200 200 400 >x.hist
+gnuplot> plot "x.hist" with steps
+
+# 2-D
+cat outFile.csv | awk -F, 'BEGIN{pi=4*atan2(1,1)}($1!="#"){phi1=$3;phi2=$5;print(1,phi1*180/pi,phi2*180/pi)}' | whist.pl -200 200 40 -200 200 40 >x.hist
+gnuplot> splot "x.hist" with steps

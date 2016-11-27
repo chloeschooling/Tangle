@@ -74,7 +74,7 @@ void OnePhotonSteppingAction::UserSteppingAction(const G4Step* step)
         G4double phi_scattering = std::acos(scattering_plane*photon_y_axis);
         G4cout << "\nphi_scattering: " << phi_scattering << G4endl;
 
-        fpRunAction->RecordData(TangleRunAction::Data(phi_scattering,0.));
+        fpRunAction->RecordData(TangleRunAction::Data(0.,phi_scattering,0.,0.));
       }
     }
   }
