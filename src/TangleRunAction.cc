@@ -17,13 +17,10 @@ TangleRunAction::TangleRunAction()
 {
   if (G4Threading::IsMasterThread()) {
     fpMasterRunAction = this;
-  } else {
-    // Worker thread.  fpMasterRunAction should have been initialised by now.
-    assert(fpMasterRunAction);
-    fData.reserve(10000000);
-    G4AutoLock lock(&runActionMutex);
-    fpMasterRunAction->fPointers.push_back(&fData);
   }
+  fData.reserve(10000000);
+  G4AutoLock lock(&runActionMutex);
+  fpMasterRunAction->fPointers.push_back(&fData);
 }
 
 TangleRunAction::~TangleRunAction()

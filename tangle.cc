@@ -1,4 +1,8 @@
+#ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
+#else
+#include "G4RunManager.hh"
+#endif
 #include "G4PhysListFactory.hh"
 #include "TangleDetectorConstruction.hh"
 #include "G4EmLivermorePolarizedPhysics.hh"
@@ -12,7 +16,11 @@ int main(int argc,char** argv)
   // Do this first to capture all output
   G4UIExecutive* ui = new G4UIExecutive(argc, argv);
 
-  G4RunManager* runManager = new G4MTRunManager;
+#ifdef G4MULTITHREADED
+  G4MTRunManager* runManager = new G4MTRunManager;
+#else
+  G4RunManager* runManager = new G4RunManager;
+#endif
 
   runManager->SetUserInitialization(new TangleDetectorConstruction);
 

@@ -195,6 +195,7 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     if (desiredPhi2 < -pi) {
       desiredPhi2 += twopi;
     }
+    // And don't forget to do the same for the Compton electron.  <<<<<<<<< NEXT JOB
 
     G4ThreeVector newMomentumDirectionPrime;
     // In frame of second photon (denoted by "prime")
