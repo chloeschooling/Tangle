@@ -16,6 +16,8 @@
 AnnihilationPhotonsSteppingAction::AnnihilationPhotonsSteppingAction
 (TangleRunAction* runAction)
 : fpRunAction(runAction)
+, fAnnihilationPhotonFound1(false)
+, fComptonScatteringAnnihilationPhotonFound1(false)
 , fTrackID1(0)
 , fParentID1(0)
 , fTheta1(0.)
@@ -24,8 +26,8 @@ AnnihilationPhotonsSteppingAction::AnnihilationPhotonsSteppingAction
 
 void AnnihilationPhotonsSteppingAction::BeginOfEventAction()
 {
+  fAnnihilationPhotonFound1 = false;
   fComptonScatteringAnnihilationPhotonFound1 = false;
-  fComptonScatteringAnnihilationPhotonFound2 = false;
 }
 
 void AnnihilationPhotonsSteppingAction::EndOfEventAction()
@@ -77,12 +79,15 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
   G4StepPoint* postStepPoint = step->GetPostStepPoint();
   const G4VProcess* postProcessDefinedStep = postStepPoint->GetProcessDefinedStep();
   if (postProcessDefinedStep == nullptr) return;
-  if (postProcessDefinedStep->GetProcessName() != "compt") return;
 
-  // This is the frst step of an annihilation photon that Compton scatters.
+  // This is the frst step of an annihilation photon.
 
   ///////////////////////////////////////////////////////////////////////////
-  if (!fComptonScatteringAnnihilationPhotonFound1) {
+  if (!fAnnihilationPhotonFound1) {
+
+    fAnnihilationPhotonFound1 = true;
+
+    if (postProcessDefinedStep->GetProcessName() != "compt") return;
 
     fComptonScatteringAnnihilationPhotonFound1 = true;
 
@@ -121,11 +126,27 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     data.fPhi1 = fPhi1;
 
     ///////////////////////////////////////////////////////////////////////////
-  } else if (!fComptonScatteringAnnihilationPhotonFound2) {
+  } else {
     ///////////////////////////////////////////////////////////////////////////
 
     // Second photon found
-    fComptonScatteringAnnihilationPhotonFound2 = true;
+
+    // Unless BOTH annihilation photons undergo Compton scattering, do nothing.
+    G4bool doNothing = false;
+    if (!fComptonScatteringAnnihilationPhotonFound1) {
+      doNothing = true;
+      G4cout << "First annihilation photon did not undergo Compton scattering." << G4endl;
+    }
+    if (postProcessDefinedStep->GetProcessName() != "compt") {
+      doNothing = true;
+      G4cout << "Second annihilation photon did not undergo Compton scattering." << G4endl;
+    }
+    if (doNothing) {
+      //Reset for further possible annihilations in this event.
+      fAnnihilationPhotonFound1 = false;
+      fComptonScatteringAnnihilationPhotonFound1 = false;
+      return;
+    }
 
     const G4ThreeVector photon2_z_axis = preStepPoint->GetMomentumDirection();
     G4ThreeVector photon2_y_axis;
@@ -301,16 +322,10 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     fpRunAction->RecordData(data);
 
     //Reset for further possible annihilations in this event.
+    fAnnihilationPhotonFound1 = false;
     fComptonScatteringAnnihilationPhotonFound1 = false;
-    fComptonScatteringAnnihilationPhotonFound2 = false;
   }
   ///////////////////////////////////////////////////////////////////////////
-  else {
-    G4cout <<
-    "\n  Compton scattering annhilation pair not found."
-    "\n  Maybe one (or both) do not suffer a Compton scatter."
-    "\n  Maybe photoabsoprtion?"
-    << G4endl;
-  }
+
   return;
 }
