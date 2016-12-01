@@ -17,8 +17,8 @@ public:
 private:
   TangleRunAction* fpRunAction;
 
+  G4bool fAnnihilationPhotonFound1;
   G4bool fComptonScatteringAnnihilationPhotonFound1;
-  G4bool fComptonScatteringAnnihilationPhotonFound2;
 
   // These data memebers are used to remember things about the first photon.
   G4int fTrackID1;
