@@ -135,11 +135,15 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     G4bool doNothing = false;
     if (!fComptonScatteringAnnihilationPhotonFound1) {
       doNothing = true;
+#ifdef AnnihilationPhotonsSteppingActionPrinting
       G4cout << "First annihilation photon did not undergo Compton scattering." << G4endl;
+#endif  // AnnihilationPhotonsSteppingActionPrinting
     }
     if (postProcessDefinedStep->GetProcessName() != "compt") {
       doNothing = true;
+#ifdef AnnihilationPhotonsSteppingActionPrinting
       G4cout << "Second annihilation photon did not undergo Compton scattering." << G4endl;
+#endif  // AnnihilationPhotonsSteppingActionPrinting
     }
     if (doNothing) {
       //Reset for further possible annihilations in this event.
@@ -164,10 +168,6 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
      originalPhi2);
 
 #ifdef AnnihilationPhotonsSteppingActionConsistencyCheck
-    // If there are more than one annhilations in an event and one of the photons
-    // of the first does not Compton scatter then we may pick up an annhilation
-    // photon from the second, so we must do these checks.  If they fail then
-    // there's a VERY SMALL chance that we will miss an annhilation.
     if (track->GetParentID() != fParentID1)
     {
       G4cout
@@ -175,8 +175,9 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
       << "\n  track/parent IDs: " << fTrackID1 << '/' << fParentID1
       << ',' << track->GetTrackID() << '/' << track->GetParentID()
       << G4endl;
-      // We are out of step - no easy way to get back in step with this algorithm
-      // Do not allow any more annihilations this event.
+      //Reset for further possible annihilations in this event.
+      fAnnihilationPhotonFound1 = false;
+      fComptonScatteringAnnihilationPhotonFound1 = false;
       return;
     }
     const G4double dotProduct = preStepPoint->GetMomentumDirection().unit()*fPhoton1_z_axis;
@@ -184,8 +185,9 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
       G4cout <<
       "\n  Annihilation photons not in opposite directions: dot product" << dotProduct
       << G4endl;
-      // We are out of step - no easy way to get back in step with this algorithm
-      // Do not allow any more annihilations this event.
+      //Reset for further possible annihilations in this event.
+      fAnnihilationPhotonFound1 = false;
+      fComptonScatteringAnnihilationPhotonFound1 = false;
       return;
     }
 #endif // AnnihilationPhotonsSteppingActionConsistencyCheck
