@@ -60,8 +60,6 @@ void TangleRunAction::EndOfRunAction(const G4Run* run)
   G4cout
   << "\n----------------------End of " << runType << "------------------------"
   << "\n The run consists of " << nofEvents << " events."
-//  << "\n Number of photons reaching the sensitive detector: "
-//  << fNPhotons
   << "\n------------------------------------------------------------"
   << G4endl;
 }
