@@ -185,17 +185,59 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 #endif  // AnnihilationPhotonsSteppingActionPrinting
 
     // Calculate theta and phi of the Compton scatter of the second photon.
-    // Scattering angle is unchanged.
-    G4double desiredTheta2 = originalTheta2;
-    // Draw azimuthal angle from the entangled distribution.  <<<<<<<<<<<<< NEXT JOB
-    G4double desiredPhi2 = originalPhi2;
+    // Draw the azimuthal angle from the entangled distribution:
+    // A + B * cos(2*deltaPhi), or rather C + D * cos(2*deltaPhi), where
+    // C = A / (A + |B|) and D = B / (A + |B|), so that maximum is 1.
+    const G4double sin2Theta1 = 1.-fCosTheta1*fCosTheta1;
+    const G4double sin2Theta2 = 1.-originalCosTheta2*originalCosTheta2;
+    // Pryce and Ward
+    const G4double A =
+    ((std::pow(1.-fCosTheta1,3.))+2.)*(std::pow(1.-originalCosTheta2,3.)+2.)/
+    ((std::pow(2.-fCosTheta1,3.)*std::pow(2.-originalCosTheta2,3.)));
+    const G4double B = -(sin2Theta1*sin2Theta2)/
+    ((std::pow(2.-fCosTheta1,2.)*std::pow(2.-originalCosTheta2,2.)));
+    const G4double C = A / (A + std::abs(B));
+    const G4double D = B / (A + std::abs(B));
+//    G4cout << "A,B,C,D: " << A << ',' << B  << ',' << C << ',' << D << G4endl;
+//    // Snyder et al
+//    const G4double& k0 = preStepPoint->GetKineticEnergy();
+//    const G4double k1 = k0/(2.-fCosTheta1);
+//    const G4double k2 = k0/(2.-originalCosTheta2);
+//    const G4double gamma1 = k1/k0+k0/k1;
+//    const G4double gamma2 = k2/k0+k0/k2;
+//    const G4double A1 = gamma1*gamma2-gamma1*sin2Theta2-gamma2*sin2Theta1;
+//    const G4double B1 = 2.*sin2Theta1*sin2Theta2;
+//    // That's A1 + B1*sin2(deltaPhi) = A1 + B1*(0.5*(1.-cos(2.*deltaPhi).
+//    const G4double ASnyder = A1 + 0.5*B1;
+//    const G4double BSnyder = -0.5*B1;
+//    const G4double CSnyder = ASnyder / (ASnyder + std::abs(BSnyder));
+//    const G4double DSnyder = BSnyder / (ASnyder + std::abs(BSnyder));
+//    G4cout << "A,B,C,D(Snyder): " << ASnyder << ',' << BSnyder << ',' << CSnyder << ',' << DSnyder << G4endl;
+
+    // Sample delta phi
+    G4double deltaPhi;
+    const G4int maxCount = 999999;
+    G4int iCount = 0;
+    for (; iCount < maxCount; ++iCount) {
+      deltaPhi = twopi * G4UniformRand();
+      if (G4UniformRand() < C + D * cos(2.*deltaPhi)) break;
+    }
+    if (iCount >= maxCount ) {
+      G4cout << "Random delta phi not found in " << maxCount << " tries - carry on anyway." << G4endl;
+    }
+
+    // Thus, the desired second photon azimuth
+    G4double desiredPhi2 = deltaPhi - fPhi1;
+    // Minus sign in above statement because of opposite coordinate system orientations.
     if (desiredPhi2 > pi) {
       desiredPhi2 -= twopi;
     }
     if (desiredPhi2 < -pi) {
       desiredPhi2 += twopi;
     }
-    // And don't forget to do the same for the Compton electron.  <<<<<<<<< NEXT JOB
+
+    // Scattering angle is unchanged.
+    const G4double desiredTheta2 = originalTheta2;
 
     G4ThreeVector newMomentumDirectionPrime;
     // In frame of second photon (denoted by "prime")
@@ -252,7 +294,7 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
 #endif  // AnnihilationPhotonsSteppingActionPrinting
 
     track->SetMomentumDirection(newMomentumDirection);
-
+    // And don't forget to do the same for the Compton electron.  <<<<<<<<< NEXT JOB
 
     data.fTheta2 = newTheta2;
     data.fPhi2 = newPhi2;
@@ -263,6 +305,12 @@ void AnnihilationPhotonsSteppingAction::UserSteppingAction(const G4Step* step)
     fComptonScatteringAnnihilationPhotonFound2 = false;
   }
   ///////////////////////////////////////////////////////////////////////////
-
+  else {
+    G4cout <<
+    "\n  Compton scattering annhilation pair not found."
+    "\n  Maybe one (or both) do not suffer a Compton scatter."
+    "\n  Maybe photoabsoprtion?"
+    << G4endl;
+  }
   return;
 }
